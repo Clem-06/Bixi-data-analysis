@@ -1,6 +1,9 @@
 package ca.concordia.controller;
 
+import ca.concordia.model.Arrondissement;
+import ca.concordia.model.BixiStation;
 import ca.concordia.model.BixiTrip;
+import ca.concordia.model.RushHour;
 
 public interface IBixiController {
 
@@ -47,7 +50,7 @@ public interface IBixiController {
      * @param k the number of top arrondissements to retrieve
      * @return an iterable of arrondissement names
      */
-    Iterable<String> getTopArrondissements(int k);
+    Iterable<Arrondissement> getTopArrondissements(int k);
 
 
     /**
@@ -57,14 +60,14 @@ public interface IBixiController {
      * @param endDate the end date in "YYYY-MM-DD" format
      * @return an iterable of station names
      */
-    Iterable<String> getTopStations(int k, String startDate, String endDate);
+    Iterable<BixiStation> getTopStations(int k, String startDate, String endDate);
 
     /**
      * Retrieves the rush hour (hour with the highest average number of trips) for the specified month.
      * @param month the month as an integer (1-12)
      * @return the hour (0-23) with the highest number of trips in the specified month
      */
-    int getRushHourOfMonth(int month);
+    RushHour getRushHourOfMonth(int month);
 
     //TODO define method for requirement 8 - define type of output
 
