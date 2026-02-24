@@ -2,6 +2,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+small_bixi.csv
+big_bixi.csv
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
