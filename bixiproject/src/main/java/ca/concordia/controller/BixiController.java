@@ -4,20 +4,30 @@ import ca.concordia.model.Arrondissement;
 import ca.concordia.model.BixiStation;
 import ca.concordia.model.BixiTrip;
 import ca.concordia.model.RushHour;
+import ca.concordia.model.linkedList.List;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static ca.concordia.model.Utils.*;
+
+
 public class BixiController implements IBixiController {
 
     public static int[] dataSize = new int[12];
 
+    public static List[] dateTable = new List[365];
+    static {
+        for(int i = 0; i<365; i++){
+        dateTable[i] = new List<>();
+        }
+    }
 
     @Override
     public void loadFile(String filePath) {
-        String testpath = "src/main/java/tiny_bixi.csv";
-        filePath = testpath;
+        String testpath = "src/main/java/small_bixi.csv";
+        filePath = testpath; //remove for final
 
         // Implementation to load the file
         System.out.println("Loading file from: " + filePath);
@@ -26,9 +36,15 @@ public class BixiController implements IBixiController {
 //      src/main/java/SIZE_bixi.csv
         try (var lines = Files.lines(path)) {
                      lines.skip(1).forEach(this::parseLine);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        for (int i = 0; i < dateTable.length; i++) {
+            System.out.print(dateTable[i].sizeOf()+ ", ");
+        }
+
 //        for (int i = 0; i<dataSize.length;i++) {
 //            System.out.println(dataSize[i] + " objects of size " + i);
 //        }
@@ -37,35 +53,45 @@ public class BixiController implements IBixiController {
 
 
     private void parseLine(String data) {
-        // Implementation to parse data
         String[] fields = data.split(",");
         BixiTrip toAdd;
-//        dataSize[fields.length]++;
+        dataSize[fields.length]++;
 
 
         if (fields.length == 10) {
 
-            for(int i = 0; i< 10;i++){
+//            for(int i = 0; i< 10;i++){
 //                System.out.println(i+ ":");
-                System.out.println(fields[i]);
-            }
+//                System.out.println(fields[i]);
+//            }
 
             try {
-                toAdd = new BixiTrip(fields[0], fields[1], Float.parseFloat(fields[2]), Float.parseFloat(fields[3]), fields[4], fields[5],
-                        Float.parseFloat(fields[6]), Float.parseFloat(fields[7]), Long.parseLong(fields[8]), Long.parseLong(fields[9]), 0);
+                int startSec = (int)(Long.parseLong(fields[8]) / 1000);
+                int endSec   = (int)(Long.parseLong(fields[9]) / 1000);
 
-                System.out.println("NEW OBJECT SUCESS ---------------------------------------");
-                toAdd.display();
+                toAdd = new BixiTrip(fields[0], fields[1], Float.parseFloat(fields[2]), Float.parseFloat(fields[3]), fields[4], fields[5],
+                        Float.parseFloat(fields[6]), Float.parseFloat(fields[7]), startSec, endSec,
+                        dayOfYear(startSec),month(startSec),hour(startSec), 0);//CALCULATE DURATION ALSO IN UTILS
+
+                dayTable(toAdd);
+
+//                System.out.println("NEW OBJECT SUCESS ---------------------------------------");
+//                toAdd.display();
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number format");
             }
-            //HASH AND STORE TOADD:
-
         }
     }
 
+    void dayTable(BixiTrip newTrip){
+        dateTable[DateHash(newTrip)].push(newTrip);
 
+    }
 
+    int DateHash(BixiTrip data){
+        int out = (( data.getDayofYear()))%365;
+        return out;
+    }
 
 
     @Override
