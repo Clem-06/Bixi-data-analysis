@@ -1,20 +1,20 @@
 package ca.concordia.model;
 
-import ca.concordia.controller.BixiController;
-
 public class BixiTrip {
 
-    public BixiTrip() {
-    }
+    public BixiTrip() {} //default constructor
 
-
-    public BixiTrip(int startStationName, int startStationArrondissement, int endStationName, int endStationArrondissement,
-                    int startTimeMS, int endTimeMS,
-                    short dayofYear, byte month, byte hour, int duration) {
+    public BixiTrip(String startStationName, String startStationArrondissement, float startStationLatitude, float startStationLongitude, String endStationName,
+                    String endStationArrondissement, float endStationLatitude, float endStationLongitude, int startTimeMS, int endTimeMS,
+                    int dayofYear, int month, int hour, int duration) {
         this.startStationName = startStationName;
         this.startStationArrondissement = startStationArrondissement;
+        this.startStationLatitude = startStationLatitude;
+        this.startStationLongitude = startStationLongitude;
         this.endStationName = endStationName;
         this.endStationArrondissement = endStationArrondissement;
+        this.endStationLatitude = endStationLatitude;
+        this.endStationLongitude = endStationLongitude;
         this.startTimeMS = startTimeMS;
         this.endTimeMS = endTimeMS;
         this.dayofYear = dayofYear;
@@ -23,47 +23,61 @@ public class BixiTrip {
         this.duration = duration;
     }
 
-    private int startStationName;             //USE STATION DICT
-    private int startStationArrondissement;   //USE ARRONDISEMENT DICT
+    private String startStationName;
+    private String startStationArrondissement;
+    private float startStationLatitude; //int?
+    private float startStationLongitude;
 
-    private int endStationName;              //USE STATION DICT
-    private int endStationArrondissement;    //USE ARRONDISEMENT DICT
+    private String endStationName;
+    private String endStationArrondissement;
+    private float  endStationLatitude;
+    private float endStationLongitude;
 
     private int startTimeMS; //toString to seperate the values?
     private int endTimeMS;
 
-    private short dayofYear;  //COmputed when parsed   0-364    0 INDEXED BE CAREFULLLL
-    private byte month;      //COmputed when parsed   1 - 12
-    private byte hour;       //COmputed when parsed   1 - 24
+    private int dayofYear;  //COmputed when parsed   0-364
+    private int month;      //COmputed when parsed   0- 11
+    private int hour;       //COmputed when parsed   0- 23
 
     private int duration; //Float? return endTime(just the hour,min,sec) - start Time()
 
-    public void display() {
-        System.out.println(startStationName + " (" + BixiController.stationDict.getWord(startStationName) + ")" + " - " + startStationArrondissement + " - "
-                + endStationName +  " (" + BixiController.stationDict.getWord(endStationName) + ")" + " - " + endStationArrondissement + " - " + startTimeMS + " - " +
-                endTimeMS + " - " + duration);
+    public void display(){
+        System.out.println(startStationName+" - "+ startStationArrondissement +" - "+ startStationLatitude +" - "+ startStationLongitude
+                +" - "+ endStationName +" - "+ endStationArrondissement +" - "+ endStationLatitude +" - "+ endStationLongitude +" - "+ startTimeMS +" - "+
+                endTimeMS +" - "+ duration);
     }
 
-
-    public int getDayofYear() {
-        int intDay = dayofYear;
-        return intDay;
-    }
-
-    public int getStartStationName() {
+    public String getStartStationName() {
         return startStationName;
     }
 
-    public int getStartStationArrondissement() {
+    public String getStartStationArrondissement() {
         return startStationArrondissement;
     }
 
-    public int getEndStationName() {
+    public float getStartStationLatitude() {
+        return startStationLatitude;
+    }
+
+    public float getStartStationLongitude() {
+        return startStationLongitude;
+    }
+
+    public String getEndStationName() {
         return endStationName;
     }
 
-    public int getEndStationArrondissement() {
+    public String getEndStationArrondissement() {
         return endStationArrondissement;
+    }
+
+    public float getEndStationLatitude() {
+        return endStationLatitude;
+    }
+
+    public float getEndStationLongitude() {
+        return endStationLongitude;
     }
 
     public int getStartTimeMS() {
@@ -74,16 +88,20 @@ public class BixiTrip {
         return endTimeMS;
     }
 
-    public byte getMonth() {
-        return month;
-    }
-
-    public byte getHour() {
-        return hour;
-    }
-
     public int getDuration() {
         return duration;
     }
-}
 
+    public int getDayofYear() {
+        return dayofYear;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getHour() {
+        return hour;
+    }
+
+}
