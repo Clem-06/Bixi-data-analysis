@@ -1,5 +1,8 @@
 package ca.concordia.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class Utils {
 
     private static final int SECONDS_PER_DAY = 86400;
@@ -9,13 +12,12 @@ public final class Utils {
         // prevent instantiation
     }
 
-    /** Returns zero-based day of year (0–364) for 2025, given seconds since epoch. */
+
     public static int dayOfYear(int secondsSinceEpoch) {
         int yearStart = 1735689600; // Jan 1 2025 00:00:00 UTC in seconds
         return (secondsSinceEpoch - yearStart) / SECONDS_PER_DAY;
     }
 
-    /** Returns 1–12 month for 2025, given seconds since epoch. */
     public static int month(int secondsSinceEpoch) {
         int doy = dayOfYear(secondsSinceEpoch) + 1; // convert to 1–365
 
@@ -30,7 +32,6 @@ public final class Utils {
         return month;
     }
 
-    /** Returns hour of day (0–23) for 2025, given seconds since epoch. */
     public static int hour(int secondsSinceEpoch) {
         return (secondsSinceEpoch / SECONDS_PER_HOUR) % 24;
     }

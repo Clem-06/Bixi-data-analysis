@@ -6,17 +6,13 @@ public class BixiTrip {
 
 
 
-    public BixiTrip(String startStationName, String startStationArrondissement, float startStationLatitude, float startStationLongitude, String endStationName,
-                    String endStationArrondissement, float endStationLatitude, float endStationLongitude, int startTimeMS, int endTimeMS,
+    public BixiTrip(String startStationName, String startStationArrondissement, String endStationName,
+                    String endStationArrondissement, int startTimeMS, int endTimeMS,
                     int dayofYear, int month, int hour, int duration) {
         this.startStationName = startStationName;
         this.startStationArrondissement = startStationArrondissement;
-        this.startStationLatitude = startStationLatitude;
-        this.startStationLongitude = startStationLongitude;
         this.endStationName = endStationName;
         this.endStationArrondissement = endStationArrondissement;
-        this.endStationLatitude = endStationLatitude;
-        this.endStationLongitude = endStationLongitude;
         this.startTimeMS = startTimeMS;
         this.endTimeMS = endTimeMS;
         this.dayofYear = dayofYear;
@@ -25,15 +21,11 @@ public class BixiTrip {
         this.duration = duration;
     }
 
-    private String startStationName;
-    private String startStationArrondissement;
-    private float startStationLatitude; //int?
-    private float startStationLongitude;
+    private String startStationName;             //USE STATION DICT
+    private String startStationArrondissement;   //USE ARRONDISEMENT DICT
 
-    private String endStationName;
-    private String endStationArrondissement;
-    private float  endStationLatitude;
-    private float endStationLongitude;
+    private String endStationName;              //USE STATION DICT
+    private String endStationArrondissement;    //USE ARRONDISEMENT DICT
 
     private int startTimeMS; //toString to seperate the values?
     private int endTimeMS;
@@ -45,8 +37,7 @@ public class BixiTrip {
     private int duration; //Float? return endTime(just the hour,min,sec) - start Time()
 
     public void display(){
-        System.out.println(startStationName+" - "+ startStationArrondissement +" - "+ startStationLatitude +" - "+ startStationLongitude
-                +" - "+ endStationName +" - "+ endStationArrondissement +" - "+ endStationLatitude +" - "+ endStationLongitude +" - "+ startTimeMS +" - "+
+        System.out.println(startStationName+" - "+ startStationArrondissement +" - "+ endStationName +" - "+ endStationArrondissement +" - "+ startTimeMS +" - "+
                 endTimeMS +" - "+ duration);
     }
 
@@ -58,14 +49,6 @@ public class BixiTrip {
         return startStationArrondissement;
     }
 
-    public float getStartStationLatitude() {
-        return startStationLatitude;
-    }
-
-    public float getStartStationLongitude() {
-        return startStationLongitude;
-    }
-
     public String getEndStationName() {
         return endStationName;
     }
@@ -74,13 +57,6 @@ public class BixiTrip {
         return endStationArrondissement;
     }
 
-    public float getEndStationLatitude() {
-        return endStationLatitude;
-    }
-
-    public float getEndStationLongitude() {
-        return endStationLongitude;
-    }
 
     public int getStartTimeMS() {
         return startTimeMS;
