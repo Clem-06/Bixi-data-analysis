@@ -4,13 +4,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Dictionary {
+public class myDictionary {
 
     private int[] ids;
     private String[] words;
     private int size;
 
-    public Dictionary(String filePath) {
+    public myDictionary(String filePath) {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 
