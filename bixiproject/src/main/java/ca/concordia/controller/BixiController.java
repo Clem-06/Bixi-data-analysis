@@ -1,11 +1,13 @@
 package ca.concordia.controller;
 
+import ca.concordia.Main;
 import ca.concordia.model.*;
 import ca.concordia.model.linkedList.List;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 
 import static ca.concordia.model.Utils.*;
@@ -13,6 +15,8 @@ import static ca.concordia.model.Utils.*;
 
 public class BixiController implements IBixiController {
     public static int objectCounter = 0;
+
+    public int badDateCounter = 0;
 
     //make tables and fill up with empty lists    --- COULD WE MAKE LISTS  only IF NEEDED?
     public static List[] dateTable = new List[366];
@@ -44,7 +48,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/tiny_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/small_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
