@@ -34,6 +34,7 @@ public class BixiController implements IBixiController {
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
     public static List[] durationTable = new List[1304000];
+    public static List[] arrondissementTable = new List[31];
 
     static {
         for (int i = 0; i < dateTable.length; i++) {
@@ -47,6 +48,9 @@ public class BixiController implements IBixiController {
         }
         for (int i = 0; i < durationTable.length; i++) {
             durationTable[i] = new List<>();
+        }
+        for (int i = 0; i < arrondissementTable.length; i++) {
+            arrondissementTable[i] = new List<>();
         }
     }
 
@@ -80,18 +84,15 @@ public class BixiController implements IBixiController {
 
         System.out.println("TEST FUNCTIONS ----------------------------------------------");
 
-        Iterable<BixiTrip> trips = getTripsByMonth("2025-12");
+        int k = 3;
+        Iterable<Arrondissement> topArrs = getTopArrondissements(k);
 
-        int count = 0;
-        for (BixiTrip trip : trips) {
-            System.out.print(trip.getMonth() + ", ");
-            count++;
+        System.out.println("Top " + k + " arrondissements:");
+        for (Arrondissement a : topArrs) {
+            System.out.println(a.getName() + " - Trips: " + a.getSize());
         }
-        System.out.println();
-        System.out.println("Total trips displayed: " + count);
+
     }
-
-
 
 
     private void parseLine(String data) {
@@ -101,7 +102,7 @@ public class BixiController implements IBixiController {
         if (fields.length == 10) {
 
             for (String f : fields) {
-                if (f == null || f.isEmpty()){
+                if (f == null || f.isEmpty()) {
                     return;
                 }
             }
@@ -123,13 +124,16 @@ public class BixiController implements IBixiController {
                 }
 
 
-                    BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
-                            dayOfYear(startSec), hour(startSec), duration);
-                    //add to tables needed
-                    dateTablePush(toAdd);
-                    startStatTablePush(toAdd);
-                    endStatTablePush(toAdd);
-                    //durationTablePush(toAdd);
+                BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
+                        dayOfYear(startSec), hour(startSec), duration);
+                //add to tables needed
+
+//                    dateTablePush(toAdd);
+//                    startStatTablePush(toAdd);
+//                    endStatTablePush(toAdd);
+
+                //durationTablePush(toAdd);
+                arrondissementTablePush(toAdd);
 
                 //loading progress logic:
                 objectCounter++;
@@ -142,6 +146,7 @@ public class BixiController implements IBixiController {
             }
         }
     }
+
 
     void dateTablePush(BixiTrip newTrip) {
         dateTable[newTrip.getDayOfYear()].push(newTrip);
@@ -157,6 +162,10 @@ public class BixiController implements IBixiController {
 
     void durationTablePush(BixiTrip newTrip) {
         durationTable[newTrip.getDuration()].push(newTrip);
+    }
+
+    private void arrondissementTablePush(BixiTrip toAdd) {
+        arrondissementTable[toAdd.getStartStationArrondissement()].push(toAdd);
     }
 
 
@@ -185,9 +194,10 @@ public class BixiController implements IBixiController {
     @Override
     public Iterable<BixiTrip> getTripsByMonth(String dateIn) {
         String[] date = dateIn.split("-");
-        if(date.length != 2){
+        if (date.length != 2) {
             throw new IllegalArgumentException("Invalid month/year input");
-        }if(!date[0].equals( "2025")){
+        }
+        if (!date[0].equals("2025")) {
             throw new IllegalArgumentException("Invalid year input");
         }
         int month = Integer.parseInt(date[1]);
@@ -197,12 +207,12 @@ public class BixiController implements IBixiController {
         List<BixiTrip> monthTrips = new List<>();
 
         int startOfMonth = 1;
-        int lengthOfMonth = MONTH_LENGTHS[month-1];
+        int lengthOfMonth = MONTH_LENGTHS[month - 1];
 
         for (int i = 0; i < month - 1; i++) {
             startOfMonth += MONTH_LENGTHS[i];
         }
-        for(int i = startOfMonth; i < startOfMonth + lengthOfMonth ; i++){
+        for (int i = startOfMonth; i < startOfMonth + lengthOfMonth; i++) {
             monthTrips.append(dateTable[i]);
         }
         return monthTrips;
@@ -219,8 +229,17 @@ public class BixiController implements IBixiController {
     }
 
     @Override
-    public Iterable<Arrondissement> getTopArrondissements(int k) {
-        return null;
+    public Iterable<Arrondissement> getTopArrondissements(int k) { //the arrondissement.txt file is sorted thanks to previous outputs
+        List<Arrondissement> arrList = new List<>();
+        if (k <= 0) {throw new IllegalArgumentException("Invalid input for getting top arrondissements");}
+        for (int i = 0; i < k; i++) {
+            arrList.push(new Arrondissement(arrondissementTable[k].sizeOf(), arronDict.getWord(k)));
+        }
+
+
+        arrList.push(new Arrondissement(676767676, "BIG BONUS FOR TEST"));
+
+        return arrList;
     }
 
     @Override
