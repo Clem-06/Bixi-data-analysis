@@ -15,14 +15,25 @@ import static ca.concordia.model.Utils.*;
 
 public class BixiController implements IBixiController {
     public static int objectCounter = 0;
-
-    public int badDateCounter = 0;
-
+    private static final int[] MONTH_LENGTHS = {
+            31, // Jan
+            28, // Feb
+            31, // Mar
+            30, // Apr
+            31, // May
+            30, // Jun
+            31, // Jul
+            31, // Aug
+            30, // Sep
+            31, // Oct
+            30, // Nov
+            31  // Dec
+    };
     //make tables and fill up with empty lists    --- COULD WE MAKE LISTS  only IF NEEDED?
     public static List[] dateTable = new List[366];
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
-    public static List[] durationTable= new List[1304000];
+    public static List[] durationTable = new List[1304000];
 
     static {
         for (int i = 0; i < dateTable.length; i++) {
@@ -48,7 +59,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/small_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/big_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -68,29 +79,33 @@ public class BixiController implements IBixiController {
         System.out.println("Unique stations: " + stationDict.getSize());
 
         System.out.println("TEST FUNCTIONS ----------------------------------------------");
-        String testStation = "Sewell / Roy";
-        String mode = "both";
-            System.out.println("\nTrips for station " + testStation + " in mode " + mode + ":");
-            Iterable<BixiTrip> trips = getTripsByStation(testStation, mode);
 
-            int count = 0;
-            for (BixiTrip trip : trips) {
-                trip.display();
-                count++;
-            }
-            System.out.println("Total trips displayed: " + count);
-            }
+        Iterable<BixiTrip> trips = getTripsByMonth("2025-12");
+
+        int count = 0;
+        for (BixiTrip trip : trips) {
+            System.out.print(trip.getMonth() + ", ");
+            count++;
+        }
+        System.out.println();
+        System.out.println("Total trips displayed: " + count);
+    }
+
+
+
 
     private void parseLine(String data) {
-        //loading progress logic:
-        objectCounter++;
-        if (objectCounter % 100_000 == 0) {
-            System.out.println("Load progress: " + objectCounter / 100_000);
-        }
 
         String[] fields = data.split(","); //APARENTLY THIS IS SLOW, MAKE CUSTOM IsF NEED QUICKER LOADING
 
-        if (fields.length == 10) {//condition for valid trip -- DO WE NEED OTHER CHECKS - one is def broken
+        if (fields.length == 10) {
+
+            for (String f : fields) {
+                if (f == null || f.isEmpty()){
+                    return;
+                }
+            }
+            //condition for valid trip -- DO WE NEED OTHER CHECKS - one is def broken
             try {
                 int startSec = (int) (Long.parseLong(fields[8]) / 1000);
                 int endSec = (int) (Long.parseLong(fields[9]) / 1000);
@@ -102,17 +117,28 @@ public class BixiController implements IBixiController {
                 int startArr = arronDict.getId(fields[1]);
                 int endArr = arronDict.getId(fields[5]);
 
+                //checking for bad date:
+                if (dayOfYear(startSec) == -1 || dayOfYear(endSec) == -1) {
+                    return;
+                }
 
-                BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
-                        dayOfYear(startSec), month(startSec), hour(startSec), duration);
-                //add to tables needed
-                dateTablePush(toAdd);
-                startStatTablePush(toAdd);
-                endStatTablePush(toAdd);
-                durationTablePush(toAdd);
+
+                    BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
+                            dayOfYear(startSec), hour(startSec), duration);
+                    //add to tables needed
+                    dateTablePush(toAdd);
+                    startStatTablePush(toAdd);
+                    endStatTablePush(toAdd);
+                    //durationTablePush(toAdd);
+
+                //loading progress logic:
+                objectCounter++;
+                if (objectCounter % 100_000 == 0) {
+                    System.out.println("Load progress: " + objectCounter / 100_000);
+                }
 
             } catch (NumberFormatException e) {
-                System.out.println("Invalid number format");
+                throw new IllegalArgumentException("Invalid number format");
             }
         }
     }
@@ -120,16 +146,18 @@ public class BixiController implements IBixiController {
     void dateTablePush(BixiTrip newTrip) {
         dateTable[newTrip.getDayOfYear()].push(newTrip);
     }
+
     void startStatTablePush(BixiTrip newTrip) {
         startStatTable[newTrip.getStartStationName()].push(newTrip);
     }
+
     void endStatTablePush(BixiTrip newTrip) {
         endStatTable[newTrip.getEndStationName()].push(newTrip);
     }
+
     void durationTablePush(BixiTrip newTrip) {
         durationTable[newTrip.getDuration()].push(newTrip);
     }
-
 
 
     //requirement functions:
@@ -138,25 +166,46 @@ public class BixiController implements IBixiController {
         int startID = stationDict.getId(stationName);
         int endID = stationDict.getId(stationName);
 
-        if(mode.equals("start")||mode.equals("Start")){
+        if (mode.equals("start") || mode.equals("Start")) {
             return startStatTable[startID];
-        }if(mode.equals("end")||mode.equals("End")){
+        }
+        if (mode.equals("end") || mode.equals("End")) {
             return endStatTable[endID];
-        }if(mode.equals("both")||mode.equals("Both")){
+        }
+        if (mode.equals("both") || mode.equals("Both")) {
             List<BixiTrip> wholeList = new List<>();
             wholeList.append(startStatTable[startID]);
             wholeList.append(endStatTable[endID]);
             return wholeList;
-        }else {
+        } else {
             throw new IllegalArgumentException("Incorrect mode for getTripsBystation - start, end, both");
         }
     }
 
     @Override
-    public Iterable<BixiTrip> getTripsByMonth(String month) {
+    public Iterable<BixiTrip> getTripsByMonth(String dateIn) {
+        String[] date = dateIn.split("-");
+        if(date.length != 2){
+            throw new IllegalArgumentException("Invalid month/year input");
+        }if(!date[0].equals( "2025")){
+            throw new IllegalArgumentException("Invalid year input");
+        }
+        int month = Integer.parseInt(date[1]);
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Invalid month input");
+        }
+        List<BixiTrip> monthTrips = new List<>();
 
+        int startOfMonth = 1;
+        int lengthOfMonth = MONTH_LENGTHS[month-1];
 
-        return null;
+        for (int i = 0; i < month - 1; i++) {
+            startOfMonth += MONTH_LENGTHS[i];
+        }
+        for(int i = startOfMonth; i < startOfMonth + lengthOfMonth ; i++){
+            monthTrips.append(dateTable[i]);
+        }
+        return monthTrips;
     }
 
     @Override
