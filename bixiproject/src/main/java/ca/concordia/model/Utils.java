@@ -13,12 +13,12 @@ public final class Utils {
     }
 
 
-    public static int dayOfYear(int secondsSinceEpoch) {
+    public static short dayOfYear(int secondsSinceEpoch) {
         int yearStart = 1735689600; // Jan 1 2025 00:00:00 UTC in seconds
-        return (secondsSinceEpoch - yearStart) / SECONDS_PER_DAY;
+        return (short)((secondsSinceEpoch - yearStart) / SECONDS_PER_DAY);
     }
 
-    public static int month(int secondsSinceEpoch) {
+    public static byte month(int secondsSinceEpoch) {
         int doy = dayOfYear(secondsSinceEpoch) + 1; // convert to 1–365
 
         int[] monthLengths = {31,28,31,30,31,30,31,31,30,31,30,31};
@@ -29,10 +29,10 @@ public final class Utils {
             doy -= length;
             month++;
         }
-        return month;
+        return (byte) month;
     }
 
-    public static int hour(int secondsSinceEpoch) {
-        return (secondsSinceEpoch / SECONDS_PER_HOUR) % 24;
+    public static byte hour(int secondsSinceEpoch) {
+        return (byte) ((secondsSinceEpoch / SECONDS_PER_HOUR) % 24);
     }
 }

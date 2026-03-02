@@ -43,15 +43,15 @@ public class BixiController implements IBixiController {
 //      src/main/java/SIZE_bixi.csv
         try (var lines = Files.lines(path)) {
             lines.skip(1).forEach(this::parseLine);
-            lines.skip(1).forEach(this::parseLine);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        for (int i = 0; i < dateTable.length; i++) {
-//            System.out.print(dateTable[i].sizeOf()+ ", ");
-//        }
+        System.out.println("LOADED ALL ITEMS IN FILE ----------------------------------------------");
+        for (int i = 0; i < dateTable.length; i++) {
+            System.out.print(dateTable[i].sizeOf()+ ", ");
+        }
 
 
     }
@@ -70,15 +70,17 @@ public class BixiController implements IBixiController {
             try {
                 int startSec = (int) (Long.parseLong(fields[8]) / 1000);
                 int endSec = (int) (Long.parseLong(fields[9]) / 1000);
+                int duration = endSec - startSec;
+
                 //Use dictionaries to convert stations and arrondissements to ints:
                 int startStation = stationDict.getId(fields[0]);
-                int endStation                ;
-                int startArr;
-                int endArr;
+                int endStation = stationDict.getId(fields[4]);
+                int startArr =arronDict.getId(fields[1]);
+                int endArr =arronDict.getId(fields[5]);
 
 
-                toAdd = new BixiTrip(fields[0], fields[1], fields[4], fields[5], startSec, endSec,
-                        dayOfYear(startSec), month(startSec), hour(startSec), 0);//CALCULATE DURATION ALSO IN UTILS
+                toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
+                        dayOfYear(startSec), month(startSec), hour(startSec), duration);
                 dayTable(toAdd);
 
             } catch (NumberFormatException e) {
@@ -93,9 +95,9 @@ public class BixiController implements IBixiController {
     }
 
     int DateHash(BixiTrip data) {
-//        int out = data.getDayofYear())%365;
-        return ((Integer) data.getDayofYear()).hashCode() % 365;
-//        return out;
+ //           return  (data.getDayofYear()) % 365;
+       return ((Integer) data.getDayofYear()).hashCode() % 365;
+
     }
 
 
