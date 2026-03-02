@@ -1,13 +1,11 @@
 package ca.concordia.controller;
 
-import ca.concordia.Main;
 import ca.concordia.model.*;
 import ca.concordia.model.linkedList.List;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 
 
 import static ca.concordia.model.Utils.*;
@@ -20,6 +18,7 @@ public class BixiController implements IBixiController {
     public static List[] dateTable = new List[366];
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
+    public static List[] durationTable= new List[1304000];
 
     static {
         for (int i = 0; i < dateTable.length; i++) {
@@ -30,6 +29,9 @@ public class BixiController implements IBixiController {
         }
         for (int i = 0; i < endStatTable.length; i++) {
             endStatTable[i] = new List<>();
+        }
+        for (int i = 0; i < durationTable.length; i++) {
+            durationTable[i] = new List<>();
         }
     }
 
@@ -42,7 +44,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/small_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/tiny_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -100,9 +102,10 @@ public class BixiController implements IBixiController {
                 BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
                         dayOfYear(startSec), month(startSec), hour(startSec), duration);
                 //add to tables needed
-                dayTable(toAdd);
-                startStatTable(toAdd);
-                endStatTable(toAdd);
+                dateTablePush(toAdd);
+                startStatTablePush(toAdd);
+                endStatTablePush(toAdd);
+                durationTablePush(toAdd);
 
             } catch (NumberFormatException e) {
                 System.out.println("Invalid number format");
@@ -110,14 +113,17 @@ public class BixiController implements IBixiController {
         }
     }
 
-    void dayTable(BixiTrip newTrip) {
-        dateTable[newTrip.getDayofYear()].push(newTrip);
+    void dateTablePush(BixiTrip newTrip) {
+        dateTable[newTrip.getDayOfYear()].push(newTrip);
     }
-    void startStatTable(BixiTrip newTrip) {
+    void startStatTablePush(BixiTrip newTrip) {
         startStatTable[newTrip.getStartStationName()].push(newTrip);
     }
-    void endStatTable(BixiTrip newTrip) {
+    void endStatTablePush(BixiTrip newTrip) {
         endStatTable[newTrip.getEndStationName()].push(newTrip);
+    }
+    void durationTablePush(BixiTrip newTrip) {
+        durationTable[newTrip.getDuration()].push(newTrip);
     }
 
 
@@ -160,18 +166,18 @@ public class BixiController implements IBixiController {
     }
 
     @Override
-    public Iterable<String> getTopArrondissements(int k) {
+    public Iterable<Arrondissement> getTopArrondissements(int k) {
         return null;
     }
 
     @Override
-    public Iterable<String> getTopStations(int k, String startDate, String endDate) {
+    public Iterable<BixiStation> getTopStations(int k, String startDate, String endDate) {
         return null;
     }
 
     @Override
-    public int getRushHourOfMonth(int month) {
-        return 0;
+    public RushHour getRushHourOfMonth(int month) {
+        return null; //place holder
     }
 
 
