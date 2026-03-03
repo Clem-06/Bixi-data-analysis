@@ -31,4 +31,34 @@ public final class Utils {
     public static byte hour(int secondsSinceEpoch) {
         return (byte) ((secondsSinceEpoch / SECONDS_PER_HOUR) % 24);
     }
+
+    public static String[] parseLineToArray(String line) {
+        int numColumns = 10;
+        String[] fields = new String[numColumns];
+
+        int fieldIndex = 0;
+        int start = 0;
+        int commaIndex;
+
+        while (fieldIndex < numColumns - 1) {
+            commaIndex = line.indexOf(',', start);
+            if (commaIndex == -1) {
+                // missing fields at end of line
+                break;
+            }
+            fields[fieldIndex++] = line.substring(start, commaIndex);
+            start = commaIndex + 1;
+        }
+
+        // last field
+        fields[fieldIndex++] = (start < line.length()) ? line.substring(start) : "";
+
+        // fill remaining missing fields with empty string
+        while (fieldIndex < numColumns) {
+            fields[fieldIndex++] = "";
+        }
+
+        return fields; // always length 10
+    }
+
 }
