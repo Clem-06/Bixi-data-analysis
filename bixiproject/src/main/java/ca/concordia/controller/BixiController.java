@@ -36,6 +36,10 @@ public class BixiController implements IBixiController {
     public static List[] durationTable = new List[1304000];
     public static List[] arrondissementTable = new List[31];
 
+    private int maxDurationMinSeen = 0;
+    private final int[] nonEmptyIndices = new int[4137];
+    private int nonEmptyCount = 0;
+
     static {
         for (int i = 0; i < dateTable.length; i++) {
             dateTable[i] = new List<>();
@@ -45,9 +49,6 @@ public class BixiController implements IBixiController {
         }
         for (int i = 0; i < endStatTable.length; i++) {
             endStatTable[i] = new List<>();
-        }
-        for (int i = 0; i < durationTable.length; i++) {
-            durationTable[i] = new List<>();
         }
         for (int i = 0; i < arrondissementTable.length; i++) {
             arrondissementTable[i] = new List<>();
@@ -78,6 +79,7 @@ public class BixiController implements IBixiController {
             e.printStackTrace();
         }
 
+        sortNonEmptyIndices();
         System.out.println("LOADED ALL ITEMS IN FILE ----------------------------------------------");
         System.out.println("Total number of trips: " + objectCounter);
         System.out.println("Unique stations: " + stationDict.getSize());
@@ -110,7 +112,7 @@ public class BixiController implements IBixiController {
             try {
                 int startSec = (int) (Long.parseLong(fields[8]) / 1000);
                 int endSec = (int) (Long.parseLong(fields[9]) / 1000);
-                int duration = endSec - startSec;
+                int duration = (endSec - startSec) / 60;
 
                 //Use dictionaries to convert stations and arrondissements to ints:
                 int startStation = stationDict.getId(fields[0]);
@@ -161,13 +163,36 @@ public class BixiController implements IBixiController {
     }
 
     void durationTablePush(BixiTrip newTrip) {
-        durationTable[newTrip.getDuration()].push(newTrip);
+        int d = newTrip.getDuration(); // minutes
+
+        if (d > maxDurationMinSeen)
+            maxDurationMinSeen = d;
+
+        if (durationTable[d] == null) {
+            durationTable[d] = new List<>();
+            nonEmptyIndices[nonEmptyCount++] = d;
+        }
+
+        durationTable[d].push(newTrip);
     }
 
     private void arrondissementTablePush(BixiTrip toAdd) {
         arrondissementTable[toAdd.getStartStationArrondissement()].push(toAdd);
     }
 
+    private void sortNonEmptyIndices() {
+        for (int i = 1; i < nonEmptyCount; i++) {
+            int key = nonEmptyIndices[i];
+            int j = i - 1;
+
+            while (j >= 0 && nonEmptyIndices[j] > key) {
+                nonEmptyIndices[j + 1] = nonEmptyIndices[j];
+                j--;
+            }
+
+            nonEmptyIndices[j + 1] = key;
+        }
+    }
 
     //requirement functions:
     @Override
@@ -220,7 +245,24 @@ public class BixiController implements IBixiController {
 
     @Override
     public Iterable<BixiTrip> getTripsByDuration(float minDuration) {
-        return null;
+        int threshold = (int) Math.floor(minDuration);
+        int startBucket = threshold + 1;
+
+        List<BixiTrip> result = new List<>();
+
+        for (int i = nonEmptyCount - 1; i >= 0; i--) {
+            int d = nonEmptyIndices[i];
+
+            if (d < startBucket)
+                break;
+
+            List<BixiTrip> bucket = durationTable[d];
+
+            for (BixiTrip t : bucket)
+                result.pushBack(t);
+        }
+
+        return result;
     }
 
     @Override

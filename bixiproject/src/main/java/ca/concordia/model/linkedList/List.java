@@ -1,10 +1,12 @@
 package ca.concordia.model.linkedList;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class List<T> implements LinkedList<T>, Iterable<T> {
 
     private Node<T> head;
+    private Node<T> tail;
     int n;
     boolean isEmpty;
 
@@ -15,10 +17,27 @@ public class List<T> implements LinkedList<T>, Iterable<T> {
     }
 
     public void push(T item) {
-        Node newNode = new Node();
+        Node<T> newNode = new Node<>();
         newNode.element = item;
         newNode.next = head;
-        this.head = newNode;
+        head = newNode;
+        if (tail == null)
+            tail = newNode;
+        n++;
+    }
+
+    public void pushBack(T item) {
+        Node<T> newNode = new Node<>();
+        newNode.element = item;
+        newNode.next = null;
+
+        if (head == null) {
+            head = tail = newNode;
+        } else {
+            tail.next = newNode;
+            tail = newNode;
+        }
+
         n++;
     }
 
@@ -56,6 +75,9 @@ public class List<T> implements LinkedList<T>, Iterable<T> {
 
             @Override
             public T next() {
+                if (current == null)
+                    throw new NoSuchElementException();
+
                 T value = current.element;
                 current = current.next;
                 return value;
@@ -64,18 +86,18 @@ public class List<T> implements LinkedList<T>, Iterable<T> {
     }
 
     public void append(List<T> other) {
+        if (other == null || other.head == null)
+            return;
+
         if (this.head == null) {
             this.head = other.head;
+            this.tail = other.tail;
             this.n = other.n;
             return;
         }
-        Node<T> current = head;
 
-        while (current.next != null) {
-            current = current.next;
-        }
-
-        current.next = other.head; //magic linkin or smt
+        this.tail.next = other.head;
+        this.tail = other.tail;
         this.n += other.n;
     }
 
