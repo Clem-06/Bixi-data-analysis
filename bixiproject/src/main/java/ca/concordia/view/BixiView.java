@@ -31,20 +31,20 @@ public class BixiView {
         controller.loadFile(filePath);
         //TODO - Complete
 
-        System.out.print("Enter minimum duration X (minutes): ");
-        float x = Float.parseFloat(scanner.nextLine());
-
-        Iterable<BixiTrip> trips = controller.getTripsByDuration(x);
-
-        for (BixiTrip t : trips)
-            t.display();
-
-        System.out.print("Enter month (1..12): ");
-        int month = Integer.parseInt(scanner.nextLine());
-
-        RushHour rh = controller.getRushHourOfMonth(month);
-
-        System.out.println("Rush hour: " + rh.getHour());
-        System.out.println("Trips during rush hour: " + rh.getTripCount());
+//        System.out.print("Enter minimum duration X (minutes): ");
+//        float x = Float.parseFloat(scanner.nextLine());
+//
+//        Iterable<BixiTrip> trips = controller.getTripsByDuration(x);
+//
+//        for (BixiTrip t : trips)
+//            t.display();
+//
+//        System.out.print("Enter month (1..12): ");
+//        int month = Integer.parseInt(scanner.nextLine());
+//
+//        RushHour rh = controller.getRushHourOfMonth(month);
+//
+//        System.out.println("Rush hour: " + rh.getHour());
+//        System.out.println("Trips during rush hour: " + rh.getTripCount());
     }
 }

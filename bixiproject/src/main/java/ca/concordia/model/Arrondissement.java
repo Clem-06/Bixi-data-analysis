@@ -16,4 +16,7 @@ public class Arrondissement {
     public String getName() {
         return name;
     }
+    public void increment() {
+        size++;
+    }
 }

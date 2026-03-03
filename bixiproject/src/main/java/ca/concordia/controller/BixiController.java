@@ -4,6 +4,7 @@ import ca.concordia.Main;
 import ca.concordia.model.*;
 import ca.concordia.model.linkedList.List;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +35,7 @@ public class BixiController implements IBixiController {
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
     public static List[] durationTable = new List[1304000];
-    public static List[] arrondissementTable = new List[31];
+    public static Arrondissement[] arrondissementTable = new Arrondissement[31];
 
     private int maxDurationMinSeen = 0;
     private final int[] nonEmptyIndices = new int[4137];
@@ -52,6 +53,10 @@ public class BixiController implements IBixiController {
         return MONTH_LENGTHS[month - 1];
     }
 
+    //make station and arrondissement dictionaries
+    public static myDictionary stationDict = new myDictionary("src/main/java/stations.txt");
+    public static myDictionary arronDict = new myDictionary("src/main/java/arrondissement.txt");
+
     static {
         for (int i = 0; i < dateTable.length; i++) {
             dateTable[i] = new List<>();
@@ -63,20 +68,16 @@ public class BixiController implements IBixiController {
             endStatTable[i] = new List<>();
         }
         for (int i = 0; i < arrondissementTable.length; i++) {
-            arrondissementTable[i] = new List<>();
+            arrondissementTable[i] = new Arrondissement(0,arronDict.getWord(i));
         }
     }
-
-    //make station and arrondissement dictionaries
-    public static myDictionary stationDict = new myDictionary("src/main/java/stations.txt");
-    public static myDictionary arronDict = new myDictionary("src/main/java/arrondissement.txt");
 
     @Override
     public void loadFile(String filePath) {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/tiny_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/big_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -84,13 +85,29 @@ public class BixiController implements IBixiController {
         System.out.println("\n                <=========================> \n");
         Path path = Path.of(filePath);
 //      src/main/java/SIZE_bixi.csv
-        try (var lines = Files.lines(path)) {
-            lines.skip(1).forEach(this::parseLine);
+        //timer
+        long startTime = System.nanoTime();
+
+        try (BufferedReader br = Files.newBufferedReader(Path.of(filePath))) {
+            String line;
+
+
+            br.readLine();      // Skip header
+
+            while ((line = br.readLine()) != null) {
+                try {
+                    parseLine(line);
+                } catch (Exception ignored) {
+                }
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        long endTime = System.nanoTime();
+
+        System.out.println("Loading time: " + (endTime-startTime) / 1_000_000_000 + " s");
         sortNonEmptyIndices();
         System.out.println("LOADED ALL ITEMS IN FILE ----------------------------------------------");
         System.out.println("Total number of trips: " + objectCounter);
@@ -111,7 +128,8 @@ public class BixiController implements IBixiController {
 
     private void parseLine(String data) {
 
-        String[] fields = data.split(","); //APARENTLY THIS IS SLOW, MAKE CUSTOM IsF NEED QUICKER LOADING
+//        String[] fields = data.split(","); //APARENTLY THIS IS SLOW, MAKE CUSTOM IsF NEED QUICKER LOADING
+        String[] fields = parseLineToArray(data); //custom split
 
         if (fields.length == 10) {
 
@@ -133,19 +151,23 @@ public class BixiController implements IBixiController {
                 int endArr = arronDict.getId(fields[5]);
 
                 //checking for bad date:
-                if (dayOfYear(startSec) == -1 || dayOfYear(endSec) == -1) {
+                short startDay = dayOfYear(startSec);
+                short endDay = dayOfYear(endSec);
+
+                if (startDay == -1 || endDay == -1) return;
+                if (startDay == -1 || endDay == -1) {
                     return;
                 }
 
 
                 BixiTrip toAdd = new BixiTrip(startStation, startArr, endStation, endArr, startSec, endSec,
-                        dayOfYear(startSec), hour(startSec), duration);
+                        startDay, hour(startSec), duration);
                 //add to tables needed
 
                 dateTablePush(toAdd);
                 startStatTablePush(toAdd);
                 endStatTablePush(toAdd);
-                durationTablePush(toAdd);
+                //durationTablePush(toAdd);
                 arrondissementTablePush(toAdd);
 
                 //loading progress logic:
@@ -188,7 +210,7 @@ public class BixiController implements IBixiController {
     }
 
     private void arrondissementTablePush(BixiTrip toAdd) {
-        arrondissementTable[toAdd.getStartStationArrondissement()].push(toAdd);
+        arrondissementTable[toAdd.getStartStationArrondissement()].increment();
     }
 
     private void sortNonEmptyIndices() {
@@ -276,29 +298,18 @@ public class BixiController implements IBixiController {
         return result;
     }
 
-    @Override
-    public Iterable<BixiTrip> getTripsByStartTime(String startTime, String finalTime) {
-        return null;
-    }
 
     @Override
     public Iterable<Arrondissement> getTopArrondissements(int k) { //the arrondissement.txt file is sorted thanks to previous outputs
         List<Arrondissement> arrList = new List<>();
-        if (k <= 0) {throw new IllegalArgumentException("Invalid input for getting top arrondissements");}
+        if (k <= 0||k>31) {throw new IllegalArgumentException("Invalid input for getting top arrondissements");}
         for (int i = 0; i < k; i++) {
-            arrList.push(new Arrondissement(arrondissementTable[k].sizeOf(), arronDict.getWord(k)));
+            arrList.pushBack(arrondissementTable[i]);
         }
-
-
-        arrList.push(new Arrondissement(676767676, "BIG BONUS FOR TEST"));
 
         return arrList;
     }
 
-    @Override
-    public Iterable<BixiStation> getTopStations(int k, String startDate, String endDate) {
-        return null;
-    }
 
     @Override
     public RushHour getRushHourOfMonth(int month) {
