@@ -40,6 +40,18 @@ public class BixiController implements IBixiController {
     private final int[] nonEmptyIndices = new int[4137];
     private int nonEmptyCount = 0;
 
+    private static int monthStartDayIndex(int month) {
+        int start = 0;
+        for (int i = 0; i < month; i++) {
+            start += MONTH_LENGTHS[i - 1]; //because 0 - 11 (total 12)
+        }
+        return start;
+    }
+
+    private static int monthNumDays(int month) {
+        return MONTH_LENGTHS[month - 1];
+    }
+
     static {
         for (int i = 0; i < dateTable.length; i++) {
             dateTable[i] = new List<>();
@@ -64,7 +76,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/big_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/tiny_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -130,11 +142,10 @@ public class BixiController implements IBixiController {
                         dayOfYear(startSec), hour(startSec), duration);
                 //add to tables needed
 
-//                    dateTablePush(toAdd);
-//                    startStatTablePush(toAdd);
-//                    endStatTablePush(toAdd);
-
-                //durationTablePush(toAdd);
+                dateTablePush(toAdd);
+                startStatTablePush(toAdd);
+                endStatTablePush(toAdd);
+                durationTablePush(toAdd);
                 arrondissementTablePush(toAdd);
 
                 //loading progress logic:
@@ -291,8 +302,34 @@ public class BixiController implements IBixiController {
 
     @Override
     public RushHour getRushHourOfMonth(int month) {
-        return null; //place holder
-    }
+        if (month < 1 || month > 12) throw new IllegalArgumentException("Invalid month input");
 
+        int startDay = monthStartDayIndex(month);
+        int daysInMonth = monthNumDays(month);
+
+        int[] hourCounts = new int[24];
+
+        for (int day = startDay; day < startDay + daysInMonth; day++) {
+            List<BixiTrip> dayTrips = dateTable[day];
+
+            for (BixiTrip t : dayTrips) {
+                int h = t.getHour();
+
+                if (h >= 0 && h < 24) hourCounts[h]++;
+            }
+        }
+
+        int bestHour = 0;
+        int bestTrips = hourCounts[0];
+
+        for (int i = 1; i < 24; i++) {
+            if (hourCounts[i] > bestTrips) {
+                bestTrips = hourCounts[i];
+                bestHour = i;
+            }
+        }
+
+        return new RushHour(bestHour, bestTrips);
+    }
 
 }
