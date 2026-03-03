@@ -72,12 +72,17 @@ public class BixiController implements IBixiController {
         System.out.println("\n                <=========================> \n");
         Path path = Path.of(filePath);
 //      src/main/java/SIZE_bixi.csv
+        //timer
+        long startTime = System.nanoTime();
+
         try (var lines = Files.lines(path)) {
             lines.skip(1).forEach(this::parseLine);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+        long endTime = System.nanoTime();
+
 
         sortNonEmptyIndices();
         System.out.println("LOADED ALL ITEMS IN FILE ----------------------------------------------");
@@ -265,10 +270,6 @@ public class BixiController implements IBixiController {
         return result;
     }
 
-    @Override
-    public Iterable<BixiTrip> getTripsByStartTime(String startTime, String finalTime) {
-        return null;
-    }
 
     @Override
     public Iterable<Arrondissement> getTopArrondissements(int k) { //the arrondissement.txt file is sorted thanks to previous outputs
@@ -284,10 +285,6 @@ public class BixiController implements IBixiController {
         return arrList;
     }
 
-    @Override
-    public Iterable<BixiStation> getTopStations(int k, String startDate, String endDate) {
-        return null;
-    }
 
     @Override
     public RushHour getRushHourOfMonth(int month) {
