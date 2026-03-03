@@ -16,6 +16,7 @@ import static ca.concordia.model.Utils.*;
 
 public class BixiController implements IBixiController {
     public static int objectCounter = 0;
+    private static final int MAX_DURATION_MIN = 24 * 60 * 7; //Huge duration, unlikely to be a proper trip, but the data includes outliers (likely stolen bikes)
     private static final int[] MONTH_LENGTHS = {
             31, // Jan
             28, // Feb
@@ -34,7 +35,7 @@ public class BixiController implements IBixiController {
     public static List[] dateTable = new List[366];
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
-    public static List[] durationTable = new List[1304000];
+    public static List[] durationTable = new List[MAX_DURATION_MIN + 1];
     public static Arrondissement[] arrondissementTable = new Arrondissement[31];
 
     private int maxDurationMinSeen = 0;
