@@ -42,8 +42,8 @@ public class BixiController implements IBixiController {
 
     private static int monthStartDayIndex(int month) {
         int start = 0;
-        for (int i = 0; i < month; i++) {
-            start += MONTH_LENGTHS[i - 1]; //because 0 - 11 (total 12)
+        for (int i = 0; i < month - 1; i++) {
+            start += MONTH_LENGTHS[i];
         }
         return start;
     }

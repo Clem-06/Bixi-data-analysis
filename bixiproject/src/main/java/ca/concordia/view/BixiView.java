@@ -45,6 +45,6 @@ public class BixiView {
         RushHour rh = controller.getRushHourOfMonth(month);
 
         System.out.println("Rush hour: " + rh.getHour());
-        System.out.println("Trips during rush hour: " + rh.getTrips());
+        System.out.println("Trips during rush hour: " + rh.getTripCount());
     }
 }
