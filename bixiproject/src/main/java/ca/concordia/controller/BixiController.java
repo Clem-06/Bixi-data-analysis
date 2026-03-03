@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -34,7 +35,7 @@ public class BixiController implements IBixiController {
     public static List[] dateTable = new List[366];
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
-    public static List[] durationTable = new List[1304000];
+    public static List[] durationTable = new List[1304_000];
     public static Arrondissement[] arrondissementTable = new Arrondissement[31];
 
     private int maxDurationMinSeen = 0;
@@ -42,9 +43,9 @@ public class BixiController implements IBixiController {
     private int nonEmptyCount = 0;
 
     private static int monthStartDayIndex(int month) {
-        int start = 0;
-        for (int i = 0; i < month; i++) {
-            start += MONTH_LENGTHS[i - 1]; //because 0 - 11 (total 12)
+        int start = 1; // days indexed from 1
+        for (int i = 0; i < month - 1; i++) { // sum previous months
+            start += MONTH_LENGTHS[i];
         }
         return start;
     }
@@ -68,7 +69,7 @@ public class BixiController implements IBixiController {
             endStatTable[i] = new List<>();
         }
         for (int i = 0; i < arrondissementTable.length; i++) {
-            arrondissementTable[i] = new Arrondissement(0,arronDict.getWord(i));
+            arrondissementTable[i] = new Arrondissement(0, arronDict.getWord(i));
         }
     }
 
@@ -107,7 +108,7 @@ public class BixiController implements IBixiController {
 
         long endTime = System.nanoTime();
 
-        System.out.println("Loading time: " + (endTime-startTime) / 1_000_000_000 + " s");
+        System.out.println("Loading time: " + (endTime - startTime) / 1_000_000_000 + " s");
         sortNonEmptyIndices();
         System.out.println("LOADED ALL ITEMS IN FILE ----------------------------------------------");
         System.out.println("Total number of trips: " + objectCounter);
@@ -115,13 +116,7 @@ public class BixiController implements IBixiController {
 
         System.out.println("TEST FUNCTIONS ----------------------------------------------");
 
-        int k = 3;
-        Iterable<Arrondissement> topArrs = getTopArrondissements(k);
-
-        System.out.println("Top " + k + " arrondissements:");
-        for (Arrondissement a : topArrs) {
-            System.out.println(a.getName() + " - Trips: " + a.getSize());
-        }
+        testCompareTwoMonths();
 
     }
 
@@ -165,8 +160,8 @@ public class BixiController implements IBixiController {
                 //add to tables needed
 
                 dateTablePush(toAdd);
-                startStatTablePush(toAdd);
-                endStatTablePush(toAdd);
+                //startStatTablePush(toAdd);
+                //endStatTablePush(toAdd);
                 //durationTablePush(toAdd);
                 arrondissementTablePush(toAdd);
 
@@ -302,7 +297,9 @@ public class BixiController implements IBixiController {
     @Override
     public Iterable<Arrondissement> getTopArrondissements(int k) { //the arrondissement.txt file is sorted thanks to previous outputs
         List<Arrondissement> arrList = new List<>();
-        if (k <= 0||k>31) {throw new IllegalArgumentException("Invalid input for getting top arrondissements");}
+        if (k <= 0 || k > 31) {
+            throw new IllegalArgumentException("Invalid input for getting top arrondissements");
+        }
         for (int i = 0; i < k; i++) {
             arrList.pushBack(arrondissementTable[i]);
         }
@@ -343,4 +340,114 @@ public class BixiController implements IBixiController {
         return new RushHour(bestHour, bestTrips);
     }
 
+    @Override
+    public void compareTwoMonths(int m1, int m2, int k) {
+
+        if (m1 > 12 || m1 < 1 || m2 > 12 || m2 < 1) {
+            throw new IllegalArgumentException("Invalid month input for compareMonths");
+        }
+        if (k <= 0 || k > 31) {
+            throw new IllegalArgumentException("Invalid input for compareMonths");
+        }
+        compareMonth(m1, k);
+        compareMonth(m2, k);
+    }
+
+    public void compareMonth(int month, int k) {
+        int totalTrips = 0;
+
+        int startDay = monthStartDayIndex(month);
+        int daysInMonth = monthNumDays(month);
+
+        int[] startStationCount = new int[stationDict.getSize()];
+        int[] endStationCount = new int[stationDict.getSize()];
+
+        List<BixiTrip> monthTrips = new List<>();
+
+        // gather trips for the month
+        for (int day = startDay; day < startDay + daysInMonth; day++) {
+            List<BixiTrip> dayTrips = dateTable[day - 1]; // convert to 0-based
+            monthTrips.append(dayTrips);
+        }
+
+        // count total trips, start and end stations
+        for (BixiTrip t : monthTrips) {
+            totalTrips++;
+            startStationCount[t.getStartStationName()]++;
+            endStationCount[t.getEndStationName()]++;
+        }
+
+        // Top-K start/end stations
+        List<Arrondissement> topStart = getTopStations(startStationCount, k);
+        List<Arrondissement> topEnd   = getTopStations(endStationCount, k);
+
+        // Rush hour
+        RushHour rh = getRushHourOfMonth(month);
+
+        // Print results for this month
+        System.out.println("\n--- Month " + month + " ---");
+        System.out.println("Total trips: " + totalTrips);
+
+        System.out.println("Top " + k + " start stations:");
+        for (Arrondissement a : topStart)
+            System.out.println(a.getName() + " - " + a.getSize());
+
+        System.out.println("Top " + k + " end stations:");
+        for (Arrondissement a : topEnd)
+            System.out.println(a.getName() + " - " + a.getSize());
+
+        System.out.println("Rush hour: " + rh.getHour() + "h, average trips per day: " + rh.getTripCount());
+    }
+
+    public List<Arrondissement> getTopStations(int[] counts, int k) {
+        List<Arrondissement> topStationsList = new List<>();
+        int n = counts.length;
+
+        // Create an array of indices to track which station each count belongs to
+        Integer[] indices = new Integer[n];
+        for (int i = 0; i < n; i++) indices[i] = i;
+
+        // Sort indices so that the top K stations are first
+        indices = truncatedBubbleSort(counts, indices, k);
+
+        // Build topStationsList using the sorted indices
+        for (int i = 0; i < k && i < n; i++) {
+            int id = indices[i];
+            if (counts[id] == 0) break; // stop if station has 0 trips
+            topStationsList.pushBack(new Arrondissement(counts[id], stationDict.getWord(id)));
+        }
+
+        return topStationsList;
+    }
+
+    private Integer[] truncatedBubbleSort(int[] counts, Integer[] indices, int K) {
+        int n = counts.length;
+
+        // Bubble the top K largest counts to top
+        for (int i = 0; i < K; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (counts[indices[j]] < counts[indices[j + 1]]) {
+                    int tmp = indices[j];
+                    indices[j] = indices[j + 1];
+                    indices[j + 1] = tmp;
+                }
+            }
+        }
+
+        return Arrays.copyOfRange(indices, 0, K); // return only top K indices
+    }
+
+    public void testCompareTwoMonths() {
+        int month1 = 5;  // May
+        int month2 = 7;  // July
+        int k = 3;       // top 3 stations
+
+        System.out.println("===== TEST: Compare Two Months =====");
+        try {
+            compareTwoMonths(month1, month2, k);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+        System.out.println("===== END TEST =====\n");
+    }
 }

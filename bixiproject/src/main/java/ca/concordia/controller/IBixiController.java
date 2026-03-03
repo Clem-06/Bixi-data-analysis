@@ -71,4 +71,6 @@ public interface IBixiController {
 
     //TODO define method for requirement 8 - define type of output
 
+    void compareTwoMonths(int m1, int m2, int k);
+
 }
