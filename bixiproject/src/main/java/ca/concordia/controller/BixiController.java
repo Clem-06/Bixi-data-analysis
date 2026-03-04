@@ -78,8 +78,8 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/Big_bixi.csv"; //changed tiny to 150 lines
-        filePath = testpath; //remove for final
+        //String testpath = "src/main/java/Big_bixi.csv"; //changed tiny to 150 lines
+        //filePath = testpath; //remove for final
 
         // Implementation to load the file
         System.out.println("Loading file from: " + filePath);
@@ -123,7 +123,7 @@ public class BixiController implements IBixiController {
 
     private void parseLine(String data) {
 
-//        String[] fields = data.split(","); //APARENTLY THIS IS SLOW, MAKE CUSTOM IsF NEED QUICKER LOADING
+//      String[] fields = data.split(","); //APARENTLY THIS IS SLOW, MAKE CUSTOM IsF NEED QUICKER LOADING
         String[] fields = parseLineToArray(data); //custom split
 
         if (fields.length == 10) {
