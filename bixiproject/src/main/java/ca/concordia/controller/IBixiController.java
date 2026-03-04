@@ -36,13 +36,13 @@ public interface IBixiController {
      */
     Iterable<BixiTrip> getTripsByDuration(float minDuration);
 
-    /**
-     * Retrieves trips that started within the specified time range.
-     * @param startTime the start time in "YYYY-MM-DD HH:MM:SS" format
-     * @param finalTime the end time in "YYYY-MM-DD HH:MM:SS" format
-     * @return an iterable of BixiTrip objects that started within the specified time range
-     */
-    Iterable<BixiTrip> getTripsByStartTime(String startTime, String finalTime);
+//    /**
+//     * Retrieves trips that started within the specified time range.
+//     * @param startTime the start time in "YYYY-MM-DD HH:MM:SS" format
+//     * @param finalTime the end time in "YYYY-MM-DD HH:MM:SS" format
+//     * @return an iterable of BixiTrip objects that started within the specified time range
+//     */
+//    Iterable<BixiTrip> getTripsByStartTime(String startTime, String finalTime);
 
 
     /**
@@ -53,14 +53,14 @@ public interface IBixiController {
     Iterable<Arrondissement> getTopArrondissements(int k);
 
 
-    /**
-     * Retrieves the top k stations with the highest number of trips within the specified date range.
-     * @param k the number of top stations to retrieve
-     * @param startDate  the start date in "YYYY-MM-DD" format
-     * @param endDate the end date in "YYYY-MM-DD" format
-     * @return an iterable of station names
-     */
-    Iterable<BixiStation> getTopStations(int k, String startDate, String endDate);
+//    /**
+//     * Retrieves the top k stations with the highest number of trips within the specified date range.
+//     * @param k the number of top stations to retrieve
+//     * @param startDate  the start date in "YYYY-MM-DD" format
+//     * @param endDate the end date in "YYYY-MM-DD" format
+//     * @return an iterable of station names
+//     */
+//    Iterable<BixiStation> getTopStations(int k, String startDate, String endDate);
 
     /**
      * Retrieves the rush hour (hour with the highest average number of trips) for the specified month.
@@ -70,5 +70,7 @@ public interface IBixiController {
     RushHour getRushHourOfMonth(int month);
 
     //TODO define method for requirement 8 - define type of output
+
+    void compareTwoMonths(int m1, int m2, int k);
 
 }
