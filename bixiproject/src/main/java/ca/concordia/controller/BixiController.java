@@ -78,7 +78,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/big_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/Big_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -168,7 +168,7 @@ public class BixiController implements IBixiController {
                 dateTablePush(toAdd);
                 startStatTablePush(toAdd);
                 endStatTablePush(toAdd);
-                //durationTablePush(toAdd);
+                durationTablePush(toAdd);
                 arrondissementTablePush(toAdd);
 
                 //loading progress logic:
