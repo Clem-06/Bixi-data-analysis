@@ -438,9 +438,9 @@ public class BixiController implements IBixiController {
     }
 
     public void testCompareTwoMonths() {
-        int month1 = 5;  // May
-        int month2 = 7;  // July
-        int k = 3;       // top 3 stations
+        int month1 = 2;
+        int month2 = 6;
+        int k = 5;
 
         System.out.println("===== TEST: Compare Two Months =====");
         try {
