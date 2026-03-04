@@ -75,8 +75,8 @@ public class BixiController implements IBixiController {
 
     @Override
     public void loadFile(String filePath) {
-        System.out.println(stationDict.getSize());
-        System.out.println(arronDict.getSize());
+//        System.out.println(stationDict.getSize());
+//        System.out.println(arronDict.getSize());
 
         //String testpath = "src/main/java/Big_bixi.csv"; //changed tiny to 150 lines
         //filePath = testpath; //remove for final
