@@ -45,7 +45,7 @@ public class myDictionary {
     public int getId(String word) {
         for (int i = 0; i < size; i++) {
             if (words[i].equals(word))
-                return ids[i];
+                return i; //Both arrays are indexed aligned
         }
         return -1;
     }

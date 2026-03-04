@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 small_bixi.csv
 big_bixi.csv
+Big_bixi.csv
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

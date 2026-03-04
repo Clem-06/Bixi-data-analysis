@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 
@@ -17,6 +16,7 @@ import static ca.concordia.model.Utils.*;
 
 public class BixiController implements IBixiController {
     public static int objectCounter = 0;
+    private static final int MAX_DURATION_MIN = 24 * 60 * 7; //Huge duration, unlikely to be a proper trip, but the data includes outliers (likely stolen bikes)
     private static final int[] MONTH_LENGTHS = {
             31, // Jan
             28, // Feb
@@ -35,7 +35,7 @@ public class BixiController implements IBixiController {
     public static List[] dateTable = new List[366];
     public static List[] startStatTable = new List[1304];
     public static List[] endStatTable = new List[1304];
-    public static List[] durationTable = new List[1304_000];
+    public static List[] durationTable = new List[MAX_DURATION_MIN + 1];
     public static Arrondissement[] arrondissementTable = new Arrondissement[31];
 
     private int maxDurationMinSeen = 0;
@@ -43,8 +43,8 @@ public class BixiController implements IBixiController {
     private int nonEmptyCount = 0;
 
     private static int monthStartDayIndex(int month) {
-        int start = 1; // days indexed from 1
-        for (int i = 0; i < month - 1; i++) { // sum previous months
+        int start = 0;
+        for (int i = 0; i < month - 1; i++) {
             start += MONTH_LENGTHS[i];
         }
         return start;
@@ -78,7 +78,7 @@ public class BixiController implements IBixiController {
         System.out.println(stationDict.getSize());
         System.out.println(arronDict.getSize());
 
-        String testpath = "src/main/java/big_bixi.csv"; //changed tiny to 150 lines
+        String testpath = "src/main/java/Big_bixi.csv"; //changed tiny to 150 lines
         filePath = testpath; //remove for final
 
         // Implementation to load the file
@@ -160,9 +160,9 @@ public class BixiController implements IBixiController {
                 //add to tables needed
 
                 dateTablePush(toAdd);
-                //startStatTablePush(toAdd);
-                //endStatTablePush(toAdd);
-                //durationTablePush(toAdd);
+                startStatTablePush(toAdd);
+                endStatTablePush(toAdd);
+                durationTablePush(toAdd);
                 arrondissementTablePush(toAdd);
 
                 //loading progress logic:
