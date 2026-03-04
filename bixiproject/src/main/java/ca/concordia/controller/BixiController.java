@@ -116,7 +116,6 @@ public class BixiController implements IBixiController {
 
         System.out.println("TEST FUNCTIONS ----------------------------------------------");
 
-        testCompareTwoMonths();
 
     }
 
@@ -437,17 +436,4 @@ public class BixiController implements IBixiController {
         return Arrays.copyOfRange(indices, 0, K); // return only top K indices
     }
 
-    public void testCompareTwoMonths() {
-        int month1 = 2;
-        int month2 = 6;
-        int k = 5;
-
-        System.out.println("===== TEST: Compare Two Months =====");
-        try {
-            compareTwoMonths(month1, month2, k);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-        System.out.println("===== END TEST =====\n");
-    }
 }
